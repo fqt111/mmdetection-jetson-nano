@@ -37,12 +37,6 @@ detection system</h3>
     <br />
     <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
     <br />
-    <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
   </p>
 </div>
 
@@ -232,7 +226,7 @@ using PyQt5 to show results
 <!-- CONTACT -->
 ## Contact
 
-Your Name - Feng Qingtian - feng_qingtian@u.nus.edu
+Name - Feng Qingtian - feng_qingtian@u.nus.edu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
