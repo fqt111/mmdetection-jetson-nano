@@ -35,7 +35,7 @@ detection system</h3>
   <p align="center">
     undergraduate project
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/fqt111/mmdetection-jetson-nano"><strong>Explore the docs »</strong></a>
     <br />
   </p>
 </div>
@@ -122,7 +122,17 @@ my implementation can be divided into seven part:
 | stage two |  R-50-FP   |   Mask R-CNN    |      16.1      |  38.2  |                [config](https://github.com/open-mmlab/mmdetection/blob/main/configs/mask_rcnn/mask-rcnn_r50_fpn_1x_coco.py)                 |                                [model](https://download.openmmlab.com/mmdetection/v2.0/mask_rcnn/mask_rcnn_r50_fpn_1x_coco/mask_rcnn_r50_fpn_1x_coco_20200205-d4b0c5d6.pth)                                 |
 | stage two |    R-50    | Deformable DETR |       15       |  47.0  | [config](https://github.com/open-mmlab/mmdetection/blob/main/configs/deformable_detr/deformable-detr-refine-twostage_r50_16xb2-50e_coco.py) | [model](https://download.openmmlab.com/mmdetection/v3.0/deformable_detr/deformable-detr-refine-twostage_r50_16xb2-50e_coco/deformable-detr-refine-twostage_r50_16xb2-50e_coco_20221021_184714-acc8a5ff.pth) |
 
-
+The following are some of analysis between these six models.
+One-stage and two-stage object detection algorithms are based on the way they perform object detection. One-stage algorithms directly predict the location and class of the objects in a single step, while two-stage algorithms first generate region proposals, and then refine them to predict the object class and location.
+1) One-stage Object Detection Algorithms:
++ Single Shot Detector (SSD): SSD is a one-stage object detection algorithm that uses a single neural network to predict the bounding boxes and class probabilities for multiple objects in a single shot. SSD is known for its high accuracy, speed, and efficiency. It uses a multi-scale feature map to detect objects of different sizes and aspect ratios. However, it may struggle with detecting small objects.
++ You Only Look Once (YOLO): YOLO is another one-stage object detection algorithm that uses a single neural network to predict the bounding boxes and class probabilities for multiple objects in a single shot. YOLO is known for its real-time object detection capabilities and its ability to detect small objects. YOLO also uses a multi-scale feature map to detect objects of different sizes and aspect ratios.
++ RetinaNet: RetinaNet is a one-stage object detection algorithm that uses a feature pyramid network to detect objects at multiple scales. RetinaNet addresses the class imbalance problem in one-stage object detection algorithms by using a focal loss function that gives more weight to hard examples.
+2) Two-stage Object Detection Algorithms:
+- Faster R-CNN: Faster R-CNN is a two-stage object detection algorithm that uses a region proposal network (RPN) to generate region proposals and a second network to refine the proposals and predict the object class and location. Faster R-CNN is known for its high accuracy, but it may be slower than one-stage algorithms.
+- Mask R-CNN: Mask R-CNN is an extension of Faster R-CNN that adds a third branch to the network to predict object masks in addition to the object class and location. Mask R-CNN is known for its accurate object detection and segmentation capabilities.
+- Deformable Dert: Deformable Dert is a two-stage object detection algorithm that uses deformable convolutional networks to improve the accuracy of object detection. Deformable Dert is known for its ability to handle object deformations and occlusions and can achieve high accuracy even in challenging scenarios.
+Overall, one-stage algorithms like SSD and YOLO are generally faster and more efficient but may struggle with detecting small objects, while two-stage algorithms like Faster R-CNN and Mask R-CNN are generally more accurate but may be slower. Deformable Dert is a more recent two-stage algorithm that aims to improve the accuracy of object detection, especially in challenging scenarios.
 ### jetson nano and dd backup
 
 
@@ -162,6 +172,7 @@ more detail please see in the [documentation](https://github.com/grimoire/mmdete
 
 ### local network configuration
 Here is a detailed description of the steps to build a local area network with 6 Jetson Nano's and 1 host computer using a router:1. 
+![local network configuration](images\local_network.png)
 1. Prepare the hardware:
 + 6 Jetson Nano developer kits
 + 1 host computer (windows)
@@ -187,6 +198,7 @@ Now the host and each Jetson Nano can access each other by IP, and the local are
 build a socket connect to transfer image: create a threading timer, and every 30 seconds to build a connection to transfer image and results
 construct two part of [server side](demo/server.py) and [client side](demo/camera.py)
 the following are the schedule of collaboration between client and server to get 
+![socket procedure](images\socket.png)
 1. client side: inference to get results
 - post process the image to get bounding boxes, corresponding scores, classids. For each result, feed into plot_one_box function to put label into a specific position. This senario focus on person, and filter other results
 
@@ -202,22 +214,25 @@ in a short, the number of counter represent the time, and each jetson nano will 
 
 
 ### fast reid tools
-since the frame and its corresponding results send back to server, and server create several folders. Then using fast reid tools and add some function to get feature map and calculate cosine similarity, which can be a importance indicator to guide the system to achieve pedestrian rerecognition.
-1) dataloader to get image path, person id, camera id, frame id
+[FastReID](https://github.com/JDAI-CV/fast-reid) is a research platform that implements state-of-the-art re-identification algorithms. You can install this library base on [documentation](fast_reid_README.md) 
+since the frame and its corresponding results send back to server, and server create several folders. Then using fast reid tools and add some function to get feature map and calculate cosine similarity, which can be a importance indicator to guide the system to achieve pedestrian re-recognition.
+![fast reid procedure](images\reid_procedure.png)
+1) [dataloader](fastreid\data\datasets\market1501.py) to get image path, person id, camera id, frame id
 
 2) [calculate cosine similarity](demo/vis.py)
 
-3) get query id. Open corresponding txt and find its person id, if not have, it will given a global counter person number
+3) [get query id](fastreid\utils\visualizer.py). Open corresponding txt and find its person id, if not have, it will given a global counter person number
 
-4) judge gallery id. If similarity more than 0.9, this person in the gallery can be recognized as the person in query, and give him a person id which is same with query person
+4) [judge gallery id](fastreid\utils\visualizer.py). If similarity more than 0.9, this person in the gallery can be recognized as the person in query, and give him a person id which is same with query person
 
 5) give person id to txt and plot image with person id. So the six image from six jetson nano can be reallocated label and same person will get identity number.
+
 
 ### PyQt5
 using PyQt5 to show results
 1. show object detection result from six jetson nanos deploying six different algorithms, and indicate person id. Same person will own identity id while others will different.
 ![fast reid result](images/fast_reid.png )
-1. show ten person(at most ten persons even if more than ten from six frames) picture from latest six frames, and after choosing one of them will get a set of historical frames which are the same person.
+1. Given a person, it can generate a set of historical image that are same with him, the following are two example, it will be sorted by the scores of similarity. The following shows ten person(at most ten persons even if more than ten from six frames) picture from latest six frames, and after choosing one of them will get a set of historical frames which are the same person.
 ![fast reid result](images/fast_reid2.png)
 ![fast reid result](images/fast_reid3.png)
 
@@ -229,7 +244,6 @@ using PyQt5 to show results
 Name - Feng Qingtian - feng_qingtian@u.nus.edu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 
