@@ -172,13 +172,13 @@ more detail please see in the [documentation](https://github.com/grimoire/mmdete
 
 ### local network configuration
 Here is a detailed description of the steps to build a local area network with 6 Jetson Nano's and 1 host computer using a router:1. 
-![local network configuration](images\local_network.png)
+![local network configuration](images/local_network.png)
 1. Prepare the hardware:
-+ 6 Jetson Nano developer kits
++ 6 Jetson Nano devel
 + 1 host computer (windows)
 + 1 router: xiaomi router
 
-2. configure the network
+1. configure the network
 
 - Log in to the router admin page, 192.168.31.1. Default username and password are admin.
 
@@ -198,7 +198,7 @@ Now the host and each Jetson Nano can access each other by IP, and the local are
 build a socket connect to transfer image: create a threading timer, and every 30 seconds to build a connection to transfer image and results
 construct two part of [server side](demo/server.py) and [client side](demo/camera.py)
 the following are the schedule of collaboration between client and server to get 
-![socket procedure](images\socket.png)
+![socket procedure](images/socket.png)
 1. client side: inference to get results
 - post process the image to get bounding boxes, corresponding scores, classids. For each result, feed into plot_one_box function to put label into a specific position. This senario focus on person, and filter other results
 
@@ -216,14 +216,14 @@ in a short, the number of counter represent the time, and each jetson nano will 
 ### fast reid tools
 [FastReID](https://github.com/JDAI-CV/fast-reid) is a research platform that implements state-of-the-art re-identification algorithms. You can install this library base on [documentation](fast_reid_README.md) 
 since the frame and its corresponding results send back to server, and server create several folders. Then using fast reid tools and add some function to get feature map and calculate cosine similarity, which can be a importance indicator to guide the system to achieve pedestrian re-recognition.
-![fast reid procedure](images\reid_procedure.png)
-1) [dataloader](fastreid\data\datasets\market1501.py) to get image path, person id, camera id, frame id
+![fast reid procedure](images/reid_procedure.png)
+1) [dataloader](fastreid/data/datasets/market1501.py) to get image path, person id, camera id, frame id
 
 2) [calculate cosine similarity](demo/vis.py)
 
-3) [get query id](fastreid\utils\visualizer.py). Open corresponding txt and find its person id, if not have, it will given a global counter person number
+3) [get query id](fastreid/utils/visualizer.py). Open corresponding txt and find its person id, if not have, it will given a global counter person number
 
-4) [judge gallery id](fastreid\utils\visualizer.py). If similarity more than 0.9, this person in the gallery can be recognized as the person in query, and give him a person id which is same with query person
+4) [judge gallery id](fastreid/utils/visualizer.py). If similarity more than 0.9, this person in the gallery can be recognized as the person in query, and give him a person id which is same with query person
 
 5) give person id to txt and plot image with person id. So the six image from six jetson nano can be reallocated label and same person will get identity number.
 
